@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="MQTTnet.Extensions.ManagedClient/MQTTnet.Extensions.ManagedClient.csproj" />
+  <Project Path="MQTTnet.Extensions.ManagedClient.Demo/MQTTnet.Extensions.ManagedClient.Demo.csproj" />
+</Solution>
