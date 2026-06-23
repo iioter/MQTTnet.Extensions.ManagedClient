@@ -2,7 +2,20 @@
 
 [中文文档](README.zh-CN.md)
 
-`MQTTnet.Extensions.ManagedClient` is a managed MQTT client extension for MQTTnet 8.x. It keeps the client connection alive, reconnects automatically, restores subscriptions after reconnect, and publishes queued application messages from a managed queue.
+In industrial IoT, edge gateway, telemetry, and system integration scenarios, an MQTT client is usually not a short-lived connection that publishes once and exits. It is a long-running component that must stay online, keep subscriptions active, and continue publishing application messages even when the network, broker, or device environment is unstable.
+
+Without a managed client, application code often grows its own reconnect loops, connection-state checks, publish queues, subscription recovery logic, and failure handling. `MQTTnet.Extensions.ManagedClient` packages those concerns into a reusable client layer: configure the MQTT connection, subscribe to topics, enqueue outgoing messages, and let the managed client maintain the connection, reconnect after disconnects, restore subscriptions, and process pending messages in order.
+
+This helps .NET developers focus on device data, business logic, and integration workflows instead of repeatedly rebuilding MQTT reliability plumbing.
+
+`MQTTnet.Extensions.ManagedClient` is a managed MQTT client extension for MQTTnet 5.x. It keeps the client connection alive, reconnects automatically, restores subscriptions after reconnect, and publishes queued application messages from a managed queue.
+
+It is especially useful for:
+
+- Industrial gateways, edge nodes, data collectors, and other .NET services that run continuously.
+- Telemetry upload scenarios that need recoverable publishing during unstable network conditions.
+- Command, telemetry, and state synchronization flows that must restore subscriptions after reconnecting.
+- Applications that need consistent events for connection changes, reconnect failures, subscription synchronization, skipped messages, and processed messages.
 
 ## Features
 
@@ -15,16 +28,10 @@
 
 ## Installation
 
-After the package is published to NuGet:
-
-```powershell
-dotnet add package IoTGateway.MQTTnet.Extensions.ManagedClient
-```
-
-Before publishing, reference the project directly:
+NuGet:
 
 ```xml
-<ProjectReference Include="..\MQTTnet.Extensions.ManagedClient\MQTTnet.Extensions.ManagedClient.csproj" />
+<PackageReference Include="IoTGateway.MQTTnet.Extensions.ManagedClient" Version="5.0.0" />
 ```
 
 ## Quick Start
@@ -63,7 +70,8 @@ var options = new ManagedMqttClientOptionsBuilder()
     .WithClientOptions(builder =>
     {
         builder
-            .WithTcpServer("broker.hivemq.com", 1883)
+            .WithTcpServer("iotgateway.net", 1883)
+            .WithCredentials("admin", "iotgateway.net")
             .WithClientId($"managed-client-{Guid.NewGuid():N}")
             .WithCleanSession();
     })
@@ -80,12 +88,6 @@ Run the demo project:
 
 ```powershell
 dotnet run --project src/MQTTnet.Extensions.ManagedClient.Demo/MQTTnet.Extensions.ManagedClient.Demo.csproj
-```
-
-Optional arguments:
-
-```powershell
-dotnet run --project src/MQTTnet.Extensions.ManagedClient.Demo/MQTTnet.Extensions.ManagedClient.Demo.csproj -- --host broker.hivemq.com --port 1883 --topic iotgateway/demo/managed-client
 ```
 
 The demo connects to the broker, subscribes to the configured topic, publishes messages through the managed queue, prints received messages, and stops cleanly when you press `Ctrl+C`.

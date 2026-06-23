@@ -60,6 +60,7 @@ var options = new ManagedMqttClientOptionsBuilder()
     {
         builder
             .WithTcpServer(settings.Host, settings.Port)
+            .WithCredentials("admin", "iotgateway.net")
             .WithClientId(settings.ClientId)
             .WithCleanSession();
     })
@@ -110,7 +111,7 @@ internal sealed record DemoSettings(
 {
     public static DemoSettings Parse(string[] args)
     {
-        var host = GetValue(args, "--host") ?? "broker.hivemq.com";
+        var host = GetValue(args, "--host") ?? "iotgateway.net";
         var topic = GetValue(args, "--topic") ?? "iotgateway/demo/managed-client";
         var clientId = GetValue(args, "--client-id") ?? $"managed-client-demo-{Guid.NewGuid():N}";
         var port = TryGetInt(args, "--port") ?? 1883;
